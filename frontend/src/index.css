@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --saffron: #FF6B2B;
+  --saffron-dark: #E55A1A;
+  --saffron-light: #FFF0EA;
+  --peach: #FFDAB9;
+  --peach-light: #FFF5EE;
+  --green: #2E7D32;
+  --green-light: #E8F5E9;
+  --white: #FFFFFF;
+  --cream: #FFFDF9;
+  --gray-soft: #F8F6F3;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: #1a1a1a; }
+h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+.btn-primary {
+  @apply bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-150 shadow-sm;
+}
+.btn-secondary {
+  @apply bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all duration-150;
+}
+.btn-danger {
+  @apply bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-150;
+}
+.btn-success {
+  @apply bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-150;
+}
+.input-field {
+  @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent bg-white;
+}
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 p-5;
+}
+.table-th {
+  @apply px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50;
+}
+.table-td {
+  @apply px-3 py-3 text-sm text-gray-700 border-b border-gray-50;
+}
+.badge-vacant { @apply bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full; }
+.badge-occupied { @apply bg-red-100 text-red-800 text-xs font-semibold px-2 py-0.5 rounded-full; }
+.badge-ready { @apply bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full; }
+.badge-maintenance { @apply bg-gray-200 text-gray-700 text-xs font-semibold px-2 py-0.5 rounded-full; }
+
+.web-booking-row { background: #FEFCE8 !important; }
+.repeat-customer { background: #EFF6FF !important; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #FF6B2B44; border-radius: 3px; }
