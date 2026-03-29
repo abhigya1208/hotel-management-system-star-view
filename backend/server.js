@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -16,7 +17,7 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', cred
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
 
-// Routes
+// API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/rooms', require('./routes/rooms'));
 app.use('/api/bookings', require('./routes/bookings'));
@@ -29,6 +30,17 @@ app.use('/api/public', require('./routes/public'));
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'OK', time: new Date() }));
+
+// ✅ SERVE FRONTEND IN PRODUCTION
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React frontend build
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  // Handle React routing - return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+  });
+}
 
 // Error handler
 app.use((err, req, res, next) => {
