@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: '/api' });
+// Use environment variable for API URL in production, fallback to /api for local
+const API_URL = process.env.REACT_APP_API_URL || '/api';
+
+const API = axios.create({ baseURL: API_URL });
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
