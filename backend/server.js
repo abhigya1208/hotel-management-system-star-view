@@ -11,10 +11,11 @@ const app = express();
 // Connect DB
 connectDB();
 
-// ✅ DYNAMIC CORS - allows both localhost and production
+// ✅ SIMPLIFIED CORS - allows both localhost and production
 const allowedOrigins = [
   'http://localhost:3000',
   'https://hotel-star-view.onrender.com',
+  'https://hotel-star-view-api.onrender.com',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -22,16 +23,23 @@ app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps, curl)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    return callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(helmet());
+// Handle preflight requests
+app.options('*', cors());
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
 
@@ -49,6 +57,9 @@ app.use('/api/public', require('./routes/public'));
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'OK', time: new Date() }));
 
+// Test endpoint to check if backend is reachable
+app.get('/api/test', (req, res) => res.json({ message: 'Backend is working!' }));
+
 // ✅ SERVE FRONTEND IN PRODUCTION
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React frontend build
@@ -63,7 +74,7 @@ if (process.env.NODE_ENV === 'production') {
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ success: false, message: 'Internal Server Error' });
+  res.status(500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
 const PORT = process.env.PORT || 5000;
