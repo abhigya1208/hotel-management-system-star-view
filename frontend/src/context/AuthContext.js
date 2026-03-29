@@ -1,27 +1,44 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import API from '../api/axios';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('user');
+    // ✅ SAFE JSON PARSING - prevents "undefined" crash
+    const savedItem = localStorage.getItem('user');
+    const savedUser = (savedItem && savedItem !== 'undefined') ? JSON.parse(savedItem) : null;
+    
     const token = localStorage.getItem('token');
-    if (stored && token) {
-      setUser(JSON.parse(stored));
+    
+    if (savedUser && token) {
+      setUser(savedUser);
     }
     setLoading(false);
   }, []);
 
   const login = async (username, password) => {
-    const { data } = await API.post('/auth/login', { username, password });
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    setUser(data.user);
-    return data.user;
+    try {
+      const response = await API.post('/auth/login', { username, password });
+      const { token, user: userData } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      setUser(userData);
+      return { success: true };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed' 
+      };
+    }
   };
 
   const logout = () => {
@@ -30,11 +47,16 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const value = {
+    user,
+    login,
+    logout,
+    loading,
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
